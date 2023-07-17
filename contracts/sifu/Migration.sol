@@ -146,4 +146,11 @@ contract Migration is Ownable {
             }
         }
     }
+
+    /**
+     * @notice Emergency Withdraw to Owner
+     */
+    function emergencyWithdraw(IERC20 _token) external onlyOwner {
+        _token.safeTransfer(owner(), _token.balanceOf(address(this)));
+    }
 }

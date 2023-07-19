@@ -78,6 +78,7 @@ contract Migration is Ownable {
     function migrate(uint256 _amount) external isBlacklist {
         require(_amount != 0, "Invalid migration amount");
         require(exchangeRate != 0, "ExchangeRate not set");
+        require(block.timestamp < deadline, "Deadline time reached");
 
         // 1. receive previous token
         prevToken.safeTransferFrom(msg.sender, address(this), _amount);

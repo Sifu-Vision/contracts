@@ -43,7 +43,7 @@ contract Migration is Ownable {
 
     modifier isBlacklist() {
         require(
-            blacklist.contains(msg.sender),
+            !blacklist.contains(msg.sender),
             "Address is listed in blacklist"
         );
         _;
@@ -70,6 +70,7 @@ contract Migration is Ownable {
         prevToken = IERC20(_prev);
         sifuToken = ISifu(_migrated);
         exchangeRate = _rate;
+        deadline = _deadline;
 
         emit SetExchangeRate(_rate);
     }

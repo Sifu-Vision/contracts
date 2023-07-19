@@ -16,6 +16,9 @@ contract Migration is Ownable {
     using SafeERC20 for ISifu;
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    // Paused status
+    bool public paused;
+
     // Old token address
     IERC20 public prevToken;
 
@@ -28,15 +31,11 @@ contract Migration is Ownable {
     // Exchange rate divider
     uint256 constant DIVIDER = 1e18;
 
-    // deadline - migration end timestamp
-    uint256 public deadline;
-
     // Declare a set state variable
     EnumerableSet.AddressSet private blacklist;
 
     // events
     event SetExchangeRate(uint256 rate);
-    event SetDeadline(uint256 deadline);
     event Migrated(address account, uint256 prev, uint256 migrated);
     event AddedToBlacklist(address account);
     event RemovedFromBlacklist(address account);
@@ -54,23 +53,15 @@ contract Migration is Ownable {
      * @param _prev address of previous token
      * @param _migrated address of migrated token
      * @param _rate exchange rate
-     * @param _deadline deadline timestamp
      */
-    constructor(
-        address _prev,
-        address _migrated,
-        uint256 _rate,
-        uint256 _deadline
-    ) {
+    constructor(address _prev, address _migrated, uint256 _rate) {
         require(_prev != address(0), "Invalid address");
         require(_migrated != address(0), "Invalid address");
         require(_rate != 0, "Invalid exchange rate");
-        require(_deadline >= block.timestamp, "Invalid deadline timestamp");
 
         prevToken = IERC20(_prev);
         sifuToken = ISifu(_migrated);
         exchangeRate = _rate;
-        deadline = _deadline;
 
         emit SetExchangeRate(_rate);
     }
@@ -78,7 +69,7 @@ contract Migration is Ownable {
     function migrate(uint256 _amount) external isBlacklist {
         require(_amount != 0, "Invalid migration amount");
         require(exchangeRate != 0, "ExchangeRate not set");
-        require(block.timestamp < deadline, "Deadline time reached");
+        require(!paused, "Migration paused");
 
         // 1. receive previous token
         prevToken.safeTransferFrom(msg.sender, address(this), _amount);
@@ -104,17 +95,6 @@ contract Migration is Ownable {
 
         exchangeRate = _rate;
         emit SetExchangeRate(_rate);
-    }
-
-    /**
-     * @notice Set deadline
-     * @param _deadline new deadline
-     */
-    function setDeadline(uint256 _deadline) external onlyOwner {
-        require(_deadline >= block.timestamp, "Invalid deadline timestamp");
-
-        deadline = _deadline;
-        emit SetDeadline(_deadline);
     }
 
     /**
@@ -154,5 +134,19 @@ contract Migration is Ownable {
      */
     function emergencyWithdraw(IERC20 _token) external onlyOwner {
         _token.safeTransfer(owner(), _token.balanceOf(address(this)));
+    }
+
+    /**
+     * @notice Pause migration
+     */
+    function pause() external onlyOwner {
+        paused = true;
+    }
+
+    /**
+     * @notice Unpause migration
+     */
+    function unpause() external onlyOwner {
+        paused = false;
     }
 }

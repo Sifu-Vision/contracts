@@ -39,6 +39,7 @@ contract Migration is Ownable {
     event Migrated(address account, uint256 prev, uint256 migrated);
     event AddedToBlacklist(address account);
     event RemovedFromBlacklist(address account);
+    event EmergencyWithdrawn(address token, uint256 amount);
 
     modifier isBlacklist() {
         require(
@@ -133,7 +134,10 @@ contract Migration is Ownable {
      * @notice Emergency Withdraw to Owner
      */
     function emergencyWithdraw(IERC20 _token) external onlyOwner {
-        _token.safeTransfer(owner(), _token.balanceOf(address(this)));
+        uint256 _amount = _token.balanceOf(address(this));
+        _token.safeTransfer(owner(), _amount);
+
+        emit EmergencyWithdrawn(address(_token), _amount);
     }
 
     /**

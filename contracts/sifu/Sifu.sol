@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../token/oft/v2/OFTV2.sol";
+import "../token/oft/OFT.sol";
 
 /// @notice Use this contract only on the BASE CHAIN. It locks tokens on source, on outgoing send(), and unlocks tokens when receiving from other chains.
-contract Sifu is Ownable, OFTV2 {
+contract Sifu is Ownable, OFT {
     // account => isMinter : minters
     mapping(address => bool) public minters;
 
@@ -23,14 +23,12 @@ contract Sifu is Ownable, OFTV2 {
      * @param _layerZeroEndpoint address of layerzero endpoint
      * @param _name token name
      * @param _symbol token symbol
-     * @param _sharedDecimals token decimal
      */
     constructor(
         address _layerZeroEndpoint,
         string memory _name,
-        string memory _symbol,
-        uint8 _sharedDecimals
-    ) OFTV2(_name, _symbol, _sharedDecimals, _layerZeroEndpoint) {}
+        string memory _symbol
+    ) OFT(_name, _symbol, _layerZeroEndpoint) {}
 
     /**
      * @notice Mint tokens by minter

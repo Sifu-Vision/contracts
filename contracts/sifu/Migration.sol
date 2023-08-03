@@ -7,13 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-interface ISifu is IERC20 {
-    function mint(address account, uint256 amount) external;
-}
-
 contract Migration is Ownable {
     using SafeERC20 for IERC20;
-    using SafeERC20 for ISifu;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // Paused status
@@ -23,7 +18,7 @@ contract Migration is Ownable {
     IERC20 public prevToken;
 
     // New token address
-    ISifu public sifuToken;
+    IERC20 public sifuToken;
 
     // Exchange rate for swapping old token to new one
     uint256 public exchangeRate;
@@ -61,7 +56,7 @@ contract Migration is Ownable {
         require(_rate != 0, "Invalid exchange rate");
 
         prevToken = IERC20(_prev);
-        sifuToken = ISifu(_migrated);
+        sifuToken = IERC20(_migrated);
         exchangeRate = _rate;
 
         emit SetExchangeRate(_rate);

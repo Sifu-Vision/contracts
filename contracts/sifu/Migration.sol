@@ -101,7 +101,10 @@ contract Migration is Ownable {
         require(_list.length != 0, "Invalid array length");
 
         for (uint i; i < _list.length; ) {
-            if (!blacklist.contains(_list[i])) blacklist.add(_list[i]);
+            if (!blacklist.contains(_list[i])) {
+                blacklist.add(_list[i]);
+                emit RemovedFromBlacklist(_list[i]);
+            }
 
             unchecked {
                 ++i;
@@ -117,7 +120,11 @@ contract Migration is Ownable {
         require(_list.length != 0, "Invalid array length");
 
         for (uint i; i < _list.length; ) {
-            if (blacklist.contains(_list[i])) blacklist.remove(_list[i]);
+            if (blacklist.contains(_list[i])) {
+                blacklist.remove(_list[i]);
+
+                emit AddedToBlacklist(_list[i]);
+            }
 
             unchecked {
                 ++i;

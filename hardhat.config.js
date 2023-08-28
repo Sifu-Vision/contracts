@@ -37,7 +37,7 @@ function getMnemonic(networkName) {
 }
 
 function accounts(chainKey) {
-    return { mnemonic: getMnemonic(chainKey) }
+    return [process.env.PRIVATE_KEY]
 }
 
 // You need to export an object to set up your config
@@ -106,7 +106,7 @@ module.exports = {
 
     networks: {
         ethereum: {
-            url: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161", // public infura endpoint
+            url: "https://rpc.ankr.com/eth", // public infura endpoint
             chainId: 1,
             accounts: accounts(),
         },
@@ -136,7 +136,7 @@ module.exports = {
             accounts: accounts(),
         },
         fantom: {
-            url: `https://rpcapi.fantom.network`,
+            url: `https://rpc.ankr.com/fantom`,
             chainId: 250,
             accounts: accounts(),
         },

@@ -1,58 +1,41 @@
 const hre = require("hardhat")
+const lzEndpoints = require("../constants/layerzeroEndpoints.json")
+const chainIds = require("../constants/chainIds.json")
 
-async function setTrustRemote(wonderland) {
-    const oftAddr = "0x9b06F3C5de42D4623D7A2Bd940EC735103c68A76"
-    await (
-        await wonderland.setTrustedRemote(
-            // ethereum
-            101,
-            hre.ethers.utils.solidityPack(["address", "address"], [oftAddr, oftAddr])
-        )
-    ).wait(4)
-    await (
-        await wonderland.setTrustedRemote(
-            // avalanche
-            106,
-            hre.ethers.utils.solidityPack(["address", "address"], [oftAddr, oftAddr])
-        )
-    ).wait(4)
-    await (
-        await wonderland.setTrustedRemote(
-            // fantom
-            112,
-            hre.ethers.utils.solidityPack(["address", "address"], [oftAddr, oftAddr])
-        )
-    ).wait(4)
-    await (
-        await wonderland.setTrustedRemote(
-            // arbitrum
-            110,
-            hre.ethers.utils.solidityPack(["address", "address"], [oftAddr, oftAddr])
-        )
-    ).wait(4)
+async function setTrustRemote(sifu, oftAddr) {
+    const chains = ["ethereum", "avalanche", "fantom", "arbitrum"]
+
+    for (let i = 0; i < chains.length; i++) {
+        if (chains[i] !== hre.network.name)
+            await (
+                await sifu.setTrustedRemote(chainIds[chains[i]], hre.ethers.utils.solidityPack(["address", "address"], [oftAddr, oftAddr]))
+            ).wait(4)
+    }
 }
 
 async function deploy() {
-    const wonderland = await hre.ethers.getContractAt("Wonderland", oftAddr)
+    const oldTokenAddress = process.env.OLD_TOKEN_ADDRESS
+    const tokenName = "Sifu Vision"
+    const tokenSymbol = "Sifu"
+    const exchangeRate = "1000000000000000000"
 
-    await setTrustRemote(wonderland)
+    if (oldTokenAddress) {
+        const Sifu = await hre.ethers.getContractFactory("Sifu")
+        const sifu = await Sifu.deploy(lzEndpoints[hre.network.name], tokenName, tokenSymbol)
+        await sifu.deployed()
+        console.log("Sifu contract: ", sifu.address)
 
-    // await sifu.addMinter("0x6674Bc65Df8Bd4F5b495c1dAD35543Eb6c4eb674", true)
-    // await sifu.mint("0x0835000d3Fba5F24A0f7F1f91A711BF6eBBa3793", "100000000000000000000000")
-    // const ERC20Mock = await hre.ethers.getContractFactory("ERC20Mock")
-    // const erc20Mock = await ERC20Mock.deploy("Old Wonderland Token", "OWT")
-    // await erc20Mock.deployed()
-    // console.log("Old Wonderland Token: ", erc20Mock.address)
+        // set trusted remote
+        await setTrustRemote(sifu, sifu.address)
 
-    // const Wonderland = await hre.ethers.getContractFactory("Wonderland")
-    // const wonderland = await Wonderland.deploy("0x3c2269811836af69497E5F486A85D7316753cf62", "Volta Club", "Volta")
-    // await wonderland.deployed()
-    // console.log("Wonderland contract: ", wonderland.address)
-
-    // const Migration = await hre.ethers.getContractFactory("Migration")
-    // const migration = await Migration.deploy("0xecf2adaff1de8a512f6e8bfe67a2c836edb25da3", wonderland.address, "330000000000000000000")
-    // await migration.deployed()
-    // console.log("Migration contract: ", migration.address)
+        // deploy migration
+        const Migration = await hre.ethers.getContractFactory("Migration")
+        const migration = await Migration.deploy(oldTokenAddress, sifu.address, exchangeRate)
+        await migration.deployed()
+        console.log("Migration contract: ", migration.address)
+    } else {
+        throw "OLD_TOKEN_ADDRESS NOT SET"
+    }
 }
 
 async function main() {

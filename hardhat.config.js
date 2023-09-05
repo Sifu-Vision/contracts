@@ -8,7 +8,6 @@ require("hardhat-gas-reporter")
 require("hardhat-deploy")
 require("hardhat-deploy-ethers")
 require("@openzeppelin/hardhat-upgrades")
-require("./tasks")
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -19,22 +18,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
         console.log(account.address)
     }
 })
-
-function getMnemonic(networkName) {
-    if (networkName) {
-        const mnemonic = process.env["MNEMONIC_" + networkName.toUpperCase()]
-        if (mnemonic && mnemonic !== "") {
-            return mnemonic
-        }
-    }
-
-    const mnemonic = process.env.MNEMONIC
-    if (!mnemonic || mnemonic === "") {
-        return "test test test test test test test test test test test junk"
-    }
-
-    return mnemonic
-}
 
 function accounts(chainKey) {
     return [process.env.PRIVATE_KEY]
@@ -106,7 +89,7 @@ module.exports = {
 
     networks: {
         ethereum: {
-            url: "https://rpc.ankr.com/eth", // public infura endpoint
+            url: "https://rpc.ankr.com/eth",
             chainId: 1,
             accounts: accounts(),
         },

@@ -18,7 +18,7 @@ contract Migration is Ownable {
     IERC20 public prevToken;
 
     // New token address
-    IERC20 public sifuToken;
+    IERC20 public newToken;
 
     // Exchange rate for swapping old token to new one
     uint256 public exchangeRate;
@@ -56,7 +56,7 @@ contract Migration is Ownable {
         require(_rate != 0, "Invalid exchange rate");
 
         prevToken = IERC20(_prev);
-        sifuToken = IERC20(_migrated);
+        newToken = IERC20(_migrated);
         exchangeRate = _rate;
 
         emit SetExchangeRate(_rate);
@@ -74,7 +74,7 @@ contract Migration is Ownable {
         uint256 migratedAmt = (_amount * exchangeRate) / DIVIDER;
         require(migratedAmt != 0, "Invalid migrated amount");
 
-        sifuToken.safeTransfer(msg.sender, migratedAmt);
+        newToken.safeTransfer(msg.sender, migratedAmt);
         emit Migrated(msg.sender, _amount, migratedAmt);
     }
 

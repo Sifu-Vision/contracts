@@ -4,10 +4,9 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../token/oft/OFT.sol";
+import "./oft/OFT.sol";
 
-/// @notice Use this contract only on the BASE CHAIN. It locks tokens on source, on outgoing send(), and unlocks tokens when receiving from other chains.
-contract Wonderland is Ownable, OFT {
+contract Sifu is Ownable, OFT {
     // account => isMinter : minters
     mapping(address => bool) public minters;
 

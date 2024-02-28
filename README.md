@@ -5,7 +5,7 @@
 1. Add a .env file (to the root project directory) with your MNEMONIC="" and fund your wallet in order to deploy!
 2. Install npm packages - `yarn install` or `npm install`
 
-## Wonderland.sol - an omnichain ERC20
+## Sifu.sol - an omnichain ERC20
 
 > WARNING: **You must perform the setTrustedRemote() (step 2).**
 
